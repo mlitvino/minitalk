@@ -14,39 +14,66 @@
 
 void	sig_handler(int sig)
 {
-	printf("Message delivered successfully!");
+	if (sig == SIGUSR1)
+		printf("Message delivered successfully!\n");
 }
 
-int	strsize(char *str)
+void	send_pid(pid_t *serv_pid, pid_t *clnt_pid)
 {
-	int	size;
+	unsigned int i;
 
-	size = 0;
-	while(str[size])
-		size++;
-	return (++size);
+	i = 0;
+	printf("CLIENT PID : %d\n", *clnt_pid); // DEL
+	while (i < (int)sizeof(int) * 8)
+	{
+		if (*clnt_pid & (1 << (31 - i)))
+			kill(*serv_pid, SIGUSR1);
+		else
+			kill(*serv_pid, SIGUSR2);
+		i++;
+		usleep(100);
+	}
 }
 
-void	send_pid()
+void	send_len(pid_t *serv_pid, int *len)
 {
+	int i;
 
+	i = 0;
+	printf("CLIENT LEN : %d\n", *len); // DEL
+	while (i < 32)
+	{
+		if (*len & (1 << (31 - i)))
+			kill(*serv_pid, SIGUSR1);
+		else
+			kill(*serv_pid, SIGUSR2);
+		i++;
+		usleep(100);
+	}
 }
 
-void	send_size()
+void	send_str(pid_t *serv_pid, char *str, int *len)
 {
+	int i;
 
-}
-
-void	send_str()
-{
-
+	i = 0;
+	printf("CLIENT STR: %s\n", str);// DEL
+	while (i < *len * 8)
+	{
+		if (str[i / 8] & (1 << (7 - i % 8)))
+			kill(*serv_pid, SIGUSR1);
+		else
+			kill(*serv_pid, SIGUSR2);
+		i++;
+		usleep(100);
+	}
 }
 
 int	main(int argc, char *argv[])
 {
 	pid_t	clnt_pid;
 	pid_t	serv_pid;
-	int		size;
+	int		len;
 
 	if (argc != 3)
 	{
@@ -56,9 +83,9 @@ int	main(int argc, char *argv[])
 	signal(SIGUSR1, sig_handler);
 	clnt_pid = getpid();
 	serv_pid = atoi(argv[1]);
-	size = strsize(argv[2]);
-	sent_pid(clnt_pid);
-	send_size(size);
-	send_str(argv[2]);
+	len = strlen(argv[2]);
+	send_pid(&serv_pid, &clnt_pid);
+	send_len(&serv_pid, &len);
+	send_str(&serv_pid, argv[2], &len);
 	return (0);
 }

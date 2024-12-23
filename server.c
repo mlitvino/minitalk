@@ -6,60 +6,97 @@
 /*   By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 14:21:38 by mlitvino          #+#    #+#             */
-/*   Updated: 2024/12/20 18:18:41 by mlitvino         ###   ########.fr       */
+/*   Updated: 2024/12/23 19:36:02 by mlitvino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minitalk.h"
 
-volatile int bit = 0;
+volatile sig_atomic_t bit = 0;
 
-void	get_bit(char *str, int *len_inbit, int size)
+char	*get_bit(char *str, long int *bitlen, int len)
 {
+
+    long int byte_index = (*bitlen - 64) / 8;   // Byte index
+    long int bit_index = 7 - ((*bitlen - 64) % 8);
+
+	//printf("GET_BIT\n"); // DEL
 	if (!str)
 		{
-			str = malloc(sizeof(char) * size + 1);
+			str = malloc(sizeof(char) * len + 1);
 			if (!str)
 				exit(1);
+			bzero(str, len + 1);
+			str[len] = 0;
 		}
-	str[*len_inbit / 8] |= (1 << (7 - *len_inbit % 8));
+    if (bit) {
+        str[byte_index] |= (1 << bit_index); // Set the bit
+    } else {
+        str[byte_index] &= ~(1 << bit_index); // Clear the bit
+    }
+	// if (bit)
+	// 	str[(*bitlen - 64) / 8] |= (1 << (7 - *bitlen - 64));
+	// else
+	// 	str[(*bitlen - 64) / 8] &= ~(1 << (7 - *bitlen - 64));
+	(*bitlen)++;
+	//printf("STR: %s\n", str); // DEL
+	return (str);
 }
 
-int	get_size(int *len)
+void	get_len(long int *bitlen, int *len)
 {
-
+	//printf("GET_LEN\n"); // DEL
+	if (bit)
+		*len |= (1 << (31 - *bitlen - 32));
+	else
+		*len &= ~(1 << (31 - *bitlen - 32));
+	(*bitlen)++;
+	//printf("LEN: %d\n", *len); // DEL
 }
 
-int	get_client_pid(int *len, pid_t *client_pid)
+void	get_clnt_pid(long int *bitlen, pid_t *client_pid)
 {
-
+	//printf("GET_PID\n"); // DEL
+	if (bit)
+		*client_pid |= (1 << (31 - *bitlen));
+	else
+		*client_pid &= ~(1 << (31 - *bitlen));
+	(*bitlen)++;
+	//printf("PID: %d\n", *client_pid); // DEL
 }
 
 void	sig_handler(int sig)
 {
-	static long int	len_inbit;
-	static int		size;
+	static long	int bitlen;
+	static int 		len;
 	static char		*str;
 	static pid_t	clnt_pid;
 
+	// if (bitlen > 62)
+	// {
+	// 	printf("Signal received: %d\n", sig); // DEL
+	// 	printf("bitlen: %lu\n", bitlen); // DEL
+	// }
 	if (sig == SIGUSR1)
 		bit = 1;
 	else
 		bit = 0;
-	if (len_inbit < sizeof(int))
-		get_clnt_pid(&len_inbit, &clnt_pid);
-	else if (len_inbit < sizeof(int) * 2)
-		get_size(&len_inbit);
-	else if (len_inbit < size * 8)
-		get_bit(str, &len_inbit, size);
-	else
+	if (bitlen < 32)
+		get_clnt_pid(&bitlen, &clnt_pid);
+	else if (bitlen < 64)
+		get_len(&bitlen, &len);
+	else if (bitlen - 64 < len * 8)
+	{
+		str = get_bit(str, &bitlen, len);
+	}
+	if (bitlen - 64 == len * 8)
 	{
 		kill(clnt_pid, SIGUSR1);
-		printf("%s", str);
+		printf("RESULT: %s\n", str);
 		free(str);
 		str = NULL;
-		len_inbit = 0;
-		size = 0;
+		bitlen = 0;
+		len = 0;
 		clnt_pid = 0;
 	}
 }
