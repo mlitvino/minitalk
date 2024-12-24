@@ -6,7 +6,7 @@
 /*   By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/16 12:26:51 by mlitvino          #+#    #+#             */
-/*   Updated: 2024/12/23 14:57:59 by mlitvino         ###   ########.fr       */
+/*   Updated: 2024/12/24 14:28:01 by mlitvino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@
 void	send_pid(int *serv_pid, int *clnt_pid);
 void	send_str(int *serv_pid, char *str, int *len);
 void	send_size(int *serv_pid, int *len);
+
 
 #include <stdio.h>
 #include <string.h>
