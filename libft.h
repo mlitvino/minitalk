@@ -6,7 +6,7 @@
 /*   By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/30 13:12:08 by mlitvino          #+#    #+#             */
-/*   Updated: 2024/12/23 13:56:38 by mlitvino         ###   ########.fr       */
+/*   Updated: 2024/12/25 15:19:15 by mlitvino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,13 +69,13 @@ void	ft_lstdelone(t_list *lst, void (*del)(void *));
 void	ft_lstclear(t_list **lst, void (*del)(void *));
 void	ft_lstiter(t_list *lst, void (*f)(void *));
 
-int	ft_printf(const char *format, ...);
-int	ft_putchar(int a);
-int	ft_putstr(char *str);
-int	ft_putptr(void *ptr);
-int	ft_putu(unsigned int n);
-int	ft_putint(int n, char spec);
-int	ft_puthex(int n, char spec);
+int		ft_printf(const char *format, ...);
+int		ft_putchar(int a);
+int		ft_putstr(char *str);
+int		ft_putptr(void *ptr);
+int		ft_putu(unsigned int n);
+int		ft_putint(int n, char spec);
+int		ft_puthex(int n, char spec);
 
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 42

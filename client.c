@@ -119,7 +119,7 @@ void send_pid(pid_t *serv_pid, pid_t *clnt_pid)
         else
             kill(*serv_pid, SIGUSR2);
         i++;
-        usleep(100);
+        usleep(5000);
     }
 }
 
@@ -133,9 +133,8 @@ void send_len(pid_t *serv_pid, int *len)
         else
             kill(*serv_pid, SIGUSR2);
         i++;
-        usleep(1000);
+        pause();
     }
-
 }
 
 void send_str(pid_t *serv_pid, char *str, int *len)
@@ -148,7 +147,8 @@ void send_str(pid_t *serv_pid, char *str, int *len)
         else
             kill(*serv_pid, SIGUSR2);
         i++;
-        usleep(150);
+        pause();
+        usleep(100);
     }
 }
 
@@ -167,6 +167,7 @@ int main(int argc, char *argv[])
     }
 
     signal(SIGUSR1, sig_handler);
+    signal(SIGUSR2, sig_handler);
     clnt_pid = getpid();
     serv_pid = atoi(argv[1]);
     len = strlen(argv[2]);
@@ -181,7 +182,7 @@ int main(int argc, char *argv[])
 
     // Wait for signal to be received
     while (!signal_received)
-        usleep(100);
+        pause();
 
     // End time counting
     gettimeofday(&end_time, NULL);
@@ -191,6 +192,5 @@ int main(int argc, char *argv[])
     elapsed_time += (end_time.tv_usec - start_time.tv_usec) / 1000;
 
     printf("Time taken: %ld ms\n", elapsed_time);
-
     return 0;
 }
