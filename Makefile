@@ -6,44 +6,59 @@
 #    By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/31 17:29:24 by mlitvino          #+#    #+#              #
-#    Updated: 2024/12/27 18:53:37 by mlitvino         ###   ########.fr        #
+#    Updated: 2024/12/27 20:10:34 by mlitvino         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -I$(INCLD_DIR) -I$(LIBFT_DIR)
 
 CL_NAME = client
 SV_NAME = server
-LIBFT = libft.a
+LIBFT = $(LIBFT_DIR)/libft.a
 
-CL_SRC = client.c
-SV_SRC = server.c
+SRC_DIR = ./sources
+OBJ_DIR = ./objects
+LIBFT_DIR = ./libft
+INCLD_DIR = ./includes
 
-CL_OBJ = $(CL_SRC:.c=.o)
-SV_OBJ = $(SV_SRC:.c=.o)
+CL_SRC = $(SRC_DIR)/client.c
+SV_SRC = $(SRC_DIR)/server.c
+INCLD = $(INCLD_DIR)/minitalk.h
+
+CL_OBJ = $(OBJ_DIR)/client.o
+SV_OBJ = $(OBJ_DIR)/server.o
 
 .SECONDARY: $(CL_OBJ) $(SV_OBJ)
 
-all: $(CL_NAME) $(SV_NAME)
+all: $(LIBFT) $(SV_NAME) $(CL_NAME)
 
-$(CL_NAME): $(CL_OBJ)
-	$(CC) $(CL_OBJ) $(LIBFT) -o $@
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-$(CL_OBJ): $(CL_SRC)
-	$(CC) -c $(CFLAGS) $?
+$(SV_OBJ): $(SV_SRC) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-$(SV_NAME): $(SV_OBJ)
+$(CL_OBJ): $(CL_SRC) | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(LIBFT):
+	make -C $(LIBFT_DIR) all
+
+$(SV_NAME): $(SV_OBJ) $(LIBFT) | $(OBJ_DIR)
 	$(CC) $(SV_OBJ) $(LIBFT) -o $@
 
-$(SV_OBJ): $(SV_SRC)
-	$(CC) -c $(CFLAGS) $?
+$(CL_NAME): $(CL_OBJ) $(LIBFT) | $(OBJ_DIR)
+	$(CC) $(CL_OBJ) $(LIBFT) -o $@
 
 clean:
-	rm -f $(CL_OBJ) $(CV_OBJ)
+	rm -f $(CL_OBJ) $(SV_OBJ)
+	rm -rf $(OBJ_DIR)
+	make -C $(LIBFT_DIR) clean
 
 fclean: clean
 	rm -f $(CL_NAME) $(SV_NAME)
+	make -C $(LIBFT_DIR) fclean
 
 re: fclean all
 
