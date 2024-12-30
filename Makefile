@@ -6,12 +6,12 @@
 #    By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/31 17:29:24 by mlitvino          #+#    #+#              #
-#    Updated: 2024/12/27 20:10:34 by mlitvino         ###   ########.fr        #
+#    Updated: 2024/12/30 12:12:40 by mlitvino         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -I$(INCLD_DIR) -I$(LIBFT_DIR)
+CFLAGS = -Wall -Wextra -Werror -I$(INCLD_DIR) -I$(LIBFT_DIR)/$(INCLD_DIR)
 
 CL_NAME = client
 SV_NAME = server
@@ -36,14 +36,15 @@ all: $(LIBFT) $(SV_NAME) $(CL_NAME)
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-$(SV_OBJ): $(SV_SRC) | $(OBJ_DIR)
+$(SV_OBJ): $(SV_SRC) $(INCLD) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(CL_OBJ): $(CL_SRC) | $(OBJ_DIR)
+$(CL_OBJ): $(CL_SRC) $(INCLD) | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT):
 	make -C $(LIBFT_DIR) all
+	make -C $(LIBFT_DIR) bonus
 
 $(SV_NAME): $(SV_OBJ) $(LIBFT) | $(OBJ_DIR)
 	$(CC) $(SV_OBJ) $(LIBFT) -o $@
