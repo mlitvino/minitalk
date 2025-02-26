@@ -6,37 +6,18 @@
 /*   By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/20 13:06:01 by mlitvino          #+#    #+#             */
-/*   Updated: 2024/12/30 12:37:56 by mlitvino         ###   ########.fr       */
+/*   Updated: 2025/02/26 13:40:16 by mlitvino         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minitalk.h"
+#include "client.h"
 
-volatile int	g_signal_received = 0;
+volatile sig_atomic_t	g_signal_received = 0;
 
 void	sig_handler(int sig)
 {
-	if (sig == SIGUSR1)
-	{
+	if (SIGUSR1 == sig)
 		g_signal_received = 1;
-		ft_printf("Message delivered successfully!\n");
-	}
-}
-
-void	send_pid(pid_t *serv_pid, pid_t *clnt_pid)
-{
-	int	i;
-
-	i = 0;
-	while (i < (int) sizeof(int) * 8)
-	{
-		if (*clnt_pid & (1 << ((int) sizeof(int) * 8 - 1 - i)))
-			kill(*serv_pid, SIGUSR1);
-		else
-			kill(*serv_pid, SIGUSR2);
-		usleep(400);
-		i++;
-	}
 }
 
 void	send_len(pid_t *serv_pid, int *len)
@@ -50,7 +31,9 @@ void	send_len(pid_t *serv_pid, int *len)
 			kill(*serv_pid, SIGUSR1);
 		else
 			kill(*serv_pid, SIGUSR2);
-		usleep(4000);
+		while (!g_signal_received)
+			usleep(100);
+		g_signal_received = 0;
 		i++;
 	}
 }
@@ -66,14 +49,15 @@ void	send_str(pid_t *serv_pid, char *str, int *len)
 			kill(*serv_pid, SIGUSR1);
 		else
 			kill(*serv_pid, SIGUSR2);
-		usleep(4000);
+		while (!g_signal_received)
+			usleep(100);
+		g_signal_received = 0;
 		i++;
 	}
 }
 
 int	main(int argc, char *argv[])
 {
-	pid_t	clnt_pid;
 	pid_t	serv_pid;
 	int		len;
 
@@ -83,15 +67,10 @@ int	main(int argc, char *argv[])
 		return (1);
 	}
 	signal(SIGUSR1, sig_handler);
-	signal(SIGUSR2, sig_handler);
-	clnt_pid = getpid();
 	serv_pid = ft_atoi(argv[1]);
 	len = ft_strlen(argv[2]);
-	send_pid(&serv_pid, &clnt_pid);
 	send_len(&serv_pid, &len);
 	send_str(&serv_pid, argv[2], &len);
-	while (!g_signal_received)
-		usleep(1);
-	usleep(400);
+	ft_printf("Message delivered successfully!\n");
 	return (0);
 }

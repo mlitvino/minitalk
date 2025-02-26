@@ -6,7 +6,7 @@
 #    By: mlitvino <mlitvino@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/10/31 17:29:24 by mlitvino          #+#    #+#              #
-#    Updated: 2024/12/30 12:12:40 by mlitvino         ###   ########.fr        #
+#    Updated: 2025/02/26 13:15:37 by mlitvino         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -24,14 +24,14 @@ INCLD_DIR = ./includes
 
 CL_SRC = $(SRC_DIR)/client.c
 SV_SRC = $(SRC_DIR)/server.c
-INCLD = $(INCLD_DIR)/minitalk.h
+INCLD = $(INCLD_DIR)/server.h $(INCLD_DIR)/client.h
 
 CL_OBJ = $(OBJ_DIR)/client.o
 SV_OBJ = $(OBJ_DIR)/server.o
 
 .SECONDARY: $(CL_OBJ) $(SV_OBJ)
 
-all: $(LIBFT) $(SV_NAME) $(CL_NAME)
+all: $(LIBFT) $(SV_NAME) $(CL_NAME) delete_obj_dir
 
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
@@ -60,6 +60,11 @@ clean:
 fclean: clean
 	rm -f $(CL_NAME) $(SV_NAME)
 	make -C $(LIBFT_DIR) fclean
+
+delete_obj_dir :
+	if [ -z "$$(ls -A $(OBJ_DIR))" ]; then \
+	rm -rf $(OBJ_DIR); \
+	fi
 
 re: fclean all
 
