@@ -24,3 +24,7 @@ Client must communicate a string passed as a parameter to server (referenced by 
   * In terminal #2
 
         ./client <server PID> <message>
+
+<img width="439" height="180" alt="image" src="https://github.com/user-attachments/assets/f2c1d24b-161e-4cf9-b0b6-7cd739b6e53c" />
+
+
